@@ -1368,7 +1368,18 @@ function setPickBox(side, playerName, pick) {
       currentIndex = -1;
       historyMode = true;
     }
+function getCumulativeRefreshesThroughGame(index, playerKey) {
+  let total = 0;
 
+  for (let i = 0; i <= index; i += 1) {
+    const game = rawData.gameHistory?.[i];
+    if (!game) continue;
+    const detail = game[playerKey + 'Detail'];
+    total += detail?.refreshesUsedThisRound ?? 0;
+  }
+
+  return total;
+}
     function renderHistoryGame(index) {
       const game = rawData.gameHistory[index];
       if (!game) {
@@ -1381,8 +1392,8 @@ function setPickBox(side, playerName, pick) {
       el('player2Name').textContent = rawData.playerNames.player2;
       el('leftPanelTitle').textContent = rawData.playerNames.player1;
       el('rightPanelTitle').textContent = rawData.playerNames.player2;
-      el('leftRefreshInline').textContent = `Refreshes used: ${game.player1Detail?.refreshesUsedThisRound ?? 0}`;
-      el('rightRefreshInline').textContent = `Refreshes used: ${game.player2Detail?.refreshesUsedThisRound ?? 0}`;
+     el('leftRefreshInline').textContent = `Refreshes used: ${getCumulativeRefreshesThroughGame(index, 'player1')}`;
+el('rightRefreshInline').textContent = `Refreshes used: ${getCumulativeRefreshesThroughGame(index, 'player2')}`;
       el('statusPill').textContent = 'GAME REVIEW';
       el('gameCount').textContent = `Game ${game.game} of ${rawData.gameHistory.length}`;
       el('modeLabel').innerHTML = 'Viewing: <span class="phase-history">Completed Game</span>';
