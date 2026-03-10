@@ -14,4 +14,6 @@ json file can be obtained from the tournament discord "assets" section
 
 a window should open showing the browser source; right and left arrow keys progress/regress the games game by game, starting at game 0
 
+arrange the overlay as needed; add the browser source multiple times and hold alt while moving the bounding boxes to crop 
+
 
