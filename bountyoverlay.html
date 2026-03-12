@@ -184,7 +184,7 @@
     .bounty-card {
       position: relative;
       border-radius: 16px;
-      padding: 10px 14px 10px 14px;
+      padding: 30px 14px 10px 14px;
       min-height: 0;
       width: 100%;
       height: 100%;
@@ -281,6 +281,24 @@
 	  text-size-adjust: none;
 	  -webkit-text-size-adjust: none;
 	}
+
+    .bounty-level {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: var(--parchment-text);
+      font-family: 'WildBreathZelda', Inter, Segoe UI, Arial, sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: 0;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.16);
+      pointer-events: none;
+      z-index: 1;
+    }
 
     .bounty-id {
       display: none;
@@ -1054,7 +1072,15 @@
       const title = bounty?.title ?? 'Empty Slot';
       const description = bounty?.description ?? 'No bounty in this slot.';
 
+      const rawLevel = bounty?.level ?? bounty?.Level ?? bounty?.bountyLevel ?? bounty?.bounty_level;
+      const parsedLevel = Number.parseInt(rawLevel, 10);
+      const level = Number.isFinite(parsedLevel) ? parsedLevel : null;
+      const levelLabelMap = { 1: 'I', 2: 'II', 3: 'III' };
+      const levelLabel = level !== null ? (levelLabelMap[level] ?? String(level)) : null;
+      const levelMarkup = levelLabel ? `<div class="bounty-level">${levelLabel}</div>` : '';
+
       div.innerHTML = `
+        ${levelMarkup}
         <div class="bounty-inner">
           <div class="bounty-title">${title}</div>
           <div class="bounty-desc">${description}</div>
@@ -1229,7 +1255,8 @@ function setPickBox(side, playerName, pick) {
       return normalizeToSixBounties(pool.map((b) => ({
         id: b.id,
         title: b.title,
-        description: b.description
+        description: b.description,
+        level: b.level ?? b.Level ?? b.bountyLevel ?? b.bounty_level
       })));
     }
 
@@ -1275,12 +1302,13 @@ function setPickBox(side, playerName, pick) {
           id: x.id,
           title: x.title,
           description: x.description,
+          level: x.level ?? x.Level ?? x.bountyLevel ?? x.bounty_level,
           isPick: Boolean(x.isPick)
         }));
       }
 
       const latest = detailObj.poolSnapshots[detailObj.poolSnapshots.length - 1];
-      return (latest.pool || []).map((x) => ({ ...x, isPick: x.id === chosenId }));
+      return (latest.pool || []).map((x) => ({ ...x, level: x.level ?? x.Level ?? x.bountyLevel ?? x.bounty_level, isPick: x.id === chosenId }));
     }
 
     function buildHistoryDisplayPools(playerKey) {
@@ -1293,12 +1321,12 @@ function setPickBox(side, playerName, pick) {
         const detailKey = playerKey + 'Detail';
         const detail = game[detailKey];
         const currentPool = bestPoolFromDetail(detail, currentPick?.id)
-          .map((b) => ({ id: b.id, title: b.title, description: b.description }));
+          .map((b) => ({ id: b.id, title: b.title, description: b.description, level: b.level ?? b.Level ?? b.bountyLevel ?? b.bounty_level }));
 
         if (rounds.length === 0) {
           const firstRound = normalizeToSixBounties(currentPool).map((b) => ({ ...b }));
           rounds.push(firstRound);
-          previousDisplay = firstRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+          previousDisplay = firstRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
           if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
           return;
         }
@@ -1308,7 +1336,7 @@ function setPickBox(side, playerName, pick) {
         if (hadRefreshThisRound) {
           const refreshedRound = normalizeToSixBounties(currentPool).map((b) => ({ ...b }));
           rounds.push(refreshedRound);
-          previousDisplay = refreshedRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+          previousDisplay = refreshedRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
           if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
           return;
         }
@@ -1348,7 +1376,7 @@ function setPickBox(side, playerName, pick) {
         }
 
         rounds.push(nextDisplay);
-        previousDisplay = nextDisplay.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+        previousDisplay = nextDisplay.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
         if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
       });
 
@@ -1575,6 +1603,9 @@ el('rightRefreshInline').textContent = `Refreshes used: ${getCumulativeRefreshes
       console.assert(chosenCard.classList.contains('selected'), 'Expected chosen bounty to be highlighted');
       console.assert(!chosenCard.textContent.includes('#1'), 'Expected bounty number text to be removed from card');
       console.assert(!chosenCard.classList.contains('crossed'), 'Expected current chosen bounty not to be crossed out');
+
+      const leveledCard = makeBountyCard({ id: 69, title: 'Trappers', description: 'Wall at least 3 wolf type animals in, you must not kill them + win', level: 1 });
+      console.assert(leveledCard.querySelector('.bounty-level')?.textContent.trim() === 'I', 'Expected level badge to render Roman numeral when level exists');
 
       const weanGame1 = historyDisplayPools.player1[0];
       const weanGame2 = historyDisplayPools.player1[1];
