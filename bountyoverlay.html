@@ -1253,7 +1253,8 @@ function setPickBox(side, playerName, pick) {
       return normalizeToSixBounties(pool.map((b) => ({
         id: b.id,
         title: b.title,
-        description: b.description
+        description: b.description,
+        level: b.level ?? b.Level ?? b.bountyLevel ?? b.bounty_level
       })));
     }
 
@@ -1299,12 +1300,13 @@ function setPickBox(side, playerName, pick) {
           id: x.id,
           title: x.title,
           description: x.description,
+          level: x.level ?? x.Level ?? x.bountyLevel ?? x.bounty_level,
           isPick: Boolean(x.isPick)
         }));
       }
 
       const latest = detailObj.poolSnapshots[detailObj.poolSnapshots.length - 1];
-      return (latest.pool || []).map((x) => ({ ...x, isPick: x.id === chosenId }));
+      return (latest.pool || []).map((x) => ({ ...x, level: x.level ?? x.Level ?? x.bountyLevel ?? x.bounty_level, isPick: x.id === chosenId }));
     }
 
     function buildHistoryDisplayPools(playerKey) {
@@ -1317,12 +1319,12 @@ function setPickBox(side, playerName, pick) {
         const detailKey = playerKey + 'Detail';
         const detail = game[detailKey];
         const currentPool = bestPoolFromDetail(detail, currentPick?.id)
-          .map((b) => ({ id: b.id, title: b.title, description: b.description }));
+          .map((b) => ({ id: b.id, title: b.title, description: b.description, level: b.level ?? b.Level ?? b.bountyLevel ?? b.bounty_level }));
 
         if (rounds.length === 0) {
           const firstRound = normalizeToSixBounties(currentPool).map((b) => ({ ...b }));
           rounds.push(firstRound);
-          previousDisplay = firstRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+          previousDisplay = firstRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
           if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
           return;
         }
@@ -1332,7 +1334,7 @@ function setPickBox(side, playerName, pick) {
         if (hadRefreshThisRound) {
           const refreshedRound = normalizeToSixBounties(currentPool).map((b) => ({ ...b }));
           rounds.push(refreshedRound);
-          previousDisplay = refreshedRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+          previousDisplay = refreshedRound.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
           if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
           return;
         }
@@ -1372,7 +1374,7 @@ function setPickBox(side, playerName, pick) {
         }
 
         rounds.push(nextDisplay);
-        previousDisplay = nextDisplay.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description }));
+        previousDisplay = nextDisplay.map((b) => (b?.placeholder ? null : { id: b.id, title: b.title, description: b.description, level: b.level }));
         if (currentPick?.id != null) previouslyUsedIds.add(currentPick.id);
       });
 
