@@ -291,8 +291,8 @@
       background: rgba(92, 39, 11, 0.22);
       border: 1px solid rgba(92, 39, 11, 0.72);
       color: var(--parchment-text);
-      font-family: Inter, Segoe UI, Arial, sans-serif;
-      font-size: 12px;
+      font-family: 'WildBreathZelda', Inter, Segoe UI, Arial, sans-serif;
+      font-size: 13px;
       font-weight: 800;
       line-height: 1;
       letter-spacing: 0.2px;
@@ -1075,7 +1075,9 @@
       const rawLevel = bounty?.level ?? bounty?.Level ?? bounty?.bountyLevel ?? bounty?.bounty_level;
       const parsedLevel = Number.parseInt(rawLevel, 10);
       const level = Number.isFinite(parsedLevel) ? parsedLevel : null;
-      const levelMarkup = level !== null ? `<div class="bounty-level">LEVEL ${level}</div>` : '';
+      const levelLabelMap = { 1: 'I', 2: 'II', 3: 'III' };
+      const levelLabel = level !== null ? (levelLabelMap[level] ?? String(level)) : null;
+      const levelMarkup = levelLabel ? `<div class="bounty-level">${levelLabel}</div>` : '';
 
       div.innerHTML = `
         ${levelMarkup}
@@ -1603,7 +1605,7 @@ el('rightRefreshInline').textContent = `Refreshes used: ${getCumulativeRefreshes
       console.assert(!chosenCard.classList.contains('crossed'), 'Expected current chosen bounty not to be crossed out');
 
       const leveledCard = makeBountyCard({ id: 69, title: 'Trappers', description: 'Wall at least 3 wolf type animals in, you must not kill them + win', level: 1 });
-      console.assert(leveledCard.querySelector('.bounty-level')?.textContent.trim() === 'LEVEL 1', 'Expected level badge to render when level exists');
+      console.assert(leveledCard.querySelector('.bounty-level')?.textContent.trim() === 'I', 'Expected level badge to render Roman numeral when level exists');
 
       const weanGame1 = historyDisplayPools.player1[0];
       const weanGame2 = historyDisplayPools.player1[1];
